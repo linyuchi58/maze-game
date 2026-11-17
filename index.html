@@ -5898,5 +5898,30 @@
         function backToHomeFromGame() { resetEndGameBtn(); hideHandoverScreen(); endBanner = null; clearInterval(timerId); cancelAnimationFrame(animId); if ('speechSynthesis' in window) window.speechSynthesis.cancel(); showScreen('home-screen'); }
         function escapeHtml(str) { return String(str || '').replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s])); }
     </script>
+<script>
+        // 🔗 從「遊戲代碼公開區」點進來（網址帶 ?code=12345）：自動填入代碼並載入老師設定
+        function applyUrlCodeParam() {
+            try {
+                if (window.__TRANSFERRED_STATE__) return;
+                const m = String(location.search || '').match(/[?&]code=(\d{5})(?:&|$)/);
+                if (!m) return;
+                const el = document.getElementById('login-code');
+                if (!el) return;
+                el.value = m[1];
+                if (typeof onHomeCodeInput === 'function') onHomeCodeInput(el);
+                if (typeof showToast === 'function') showToast(`🔗 已帶入代碼 ${m[1]}，輸入名字就可以開始挑戰！`);
+                const nameEl = document.getElementById('login-name');
+                if (nameEl && !nameEl.value) { nameEl.style.boxShadow = '0 0 0 4px rgba(250,204,21,0.75)'; setTimeout(() => { nameEl.style.boxShadow = ''; }, 4000); }
+                if (history.replaceState) history.replaceState(null, '', location.pathname + location.hash);
+            } catch (e) {}
+        }
+        (function () {
+            const prevOnload = window.onload;
+            window.onload = function () {
+                if (typeof prevOnload === 'function') prevOnload.apply(this, arguments);
+                setTimeout(applyUrlCodeParam, 0);
+            };
+        })();
+    </script>
 </body>
 </html>
